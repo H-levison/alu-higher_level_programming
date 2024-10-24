@@ -1,6 +1,2 @@
 #!/bin/bash
-python3 -m py_compile "$PYFILE"
-
-compiled_file="${PYFILE}c"
-pycache_file="__pycache__/${PYFILE%.py}".cpython-*.pyc
-mv $pycache_file "$compiled_file
+python3 -c "import py_compile; py_compile.compile('$PYFILE', '$PYFILE' + 'c')"
