@@ -1,22 +1,28 @@
 #!/usr/bin/python3
-""" Using SQLAlchemy, Connects to db and retrieves the first entry from the
-'states' table, prints its ID and name. prints "Nothing" If the table is empty
 """
+Module to get all states
+"""
+from sys import argv
+
+from model_state import State, Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 if __name__ == "__main__":
-    from sys import argv
-    from sqlalchemy.orm import Session
-    from model_state import Base, State
-    from sqlalchemy import create_engine
-
-    conn_url = f"mysql+mysqldb://{argv[1]}:{argv[2]}@localhost/{argv[3]}"
-
-    engine = create_engine(conn_url)
+    username, password, database = argv[1:4]
+    # default host is 'localhost' and default port is '3306'
+    engine = create_engine(
+        'mysql+mysqldb://{}:{}@localhost/{}'
+        .format(username, password, database),
+        pool_pre_ping=True
+    )
+    session = Session(engine)
     Base.metadata.create_all(engine)
 
-    with Session(engine) as session:
-        first_state = session.query(State).first()
-        if first_state:
-            print(f"{first_state.id}: {first_state.name}")
-        else:
-            print("Nothing")
+    state = session.query(State).first()
+    if state:
+        print("{}: {}".format(state.__dict__['id'], state.__dict__['name']))
+    else:
+        print("Nothing")
+
+    session.close()

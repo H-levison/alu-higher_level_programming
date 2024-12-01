@@ -1,19 +1,25 @@
 #!/usr/bin/python3
-""" using SQLAlchemy, retrieves states with the letter 'a' in their names,
-and prints their IDs and names. """
+"""
+Module to get all states
+"""
+from sys import argv
+
+from model_state import State, Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 if __name__ == "__main__":
-    from sys import argv
-    from sqlalchemy.orm import Session
-    from model_state import Base, State
-    from sqlalchemy import create_engine
-
-    conn_url = f"mysql+mysqldb://{argv[1]}:{argv[2]}@localhost/{argv[3]}"
-
-    engine = create_engine(conn_url)
+    username, password, database = argv[1:4]
+    # default host is 'localhost' and default port is '3306'
+    engine = create_engine(
+        'mysql+mysqldb://{}:{}@localhost/{}'
+        .format(username, password, database),
+        pool_pre_ping=True
+    )
+    session = Session(engine)
     Base.metadata.create_all(engine)
 
-    with Session(engine) as session:
-        for state in session.query(State).order_by(State.id).all():
-            if 'a' in state.name:
-                print(f"{state.id}: {state.name}")
+    for state in session.query(State).filter(State.name.contains('a')).all():
+        print("{}: {}".format(state.id, state.name))
+
+    session.close()

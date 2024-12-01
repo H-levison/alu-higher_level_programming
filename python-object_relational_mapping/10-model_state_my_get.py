@@ -1,18 +1,29 @@
 #!/usr/bin/python3
-""" Using SQLAlchemy, connects to db, retrieves the ID of a state by name,
-and prints the ID or "Not found" if the state doesn't exist."""
+"""
+Module to get all states
+"""
+from sys import argv
+
+from model_state import State, Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 if __name__ == "__main__":
-    from sys import argv
-    from sqlalchemy.orm import Session
-    from model_state import Base, State
-    from sqlalchemy import create_engine
-
-    conn_url = f"mysql+mysqldb://{argv[1]}:{argv[2]}@localhost/{argv[3]}"
-
-    engine = create_engine(conn_url)
+    username, password, database = argv[1:4]
+    search_name = argv[4]
+    # default host is 'localhost' and default port is '3306'
+    engine = create_engine(
+        'mysql+mysqldb://{}:{}@localhost/{}'
+        .format(username, password, database),
+        pool_pre_ping=True
+    )
+    session = Session(engine)
     Base.metadata.create_all(engine)
 
-    with Session(engine) as session:
-        name = session.query(State).filter(State.name == argv[4])
-        print(name.first().id if name.first() else "Not found")
+    state = session.query(State).filter(State.name == search_name).first()
+    if state is not None:
+        print(f"{state.id}")
+    else:
+        print("Not found")
+
+    session.close()

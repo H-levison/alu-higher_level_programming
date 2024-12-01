@@ -1,23 +1,30 @@
 #!/usr/bin/python3
-""" connect and executes an SQL query to retrieve city names from the
-'cities' table for a specified state, ordered by 'cities.id'
 """
+Select all records from states table
+"""
+from sys import argv
+
+import MySQLdb
+
 if __name__ == "__main__":
-    import MySQLdb
-    from sys import argv
+    username, password, database = argv[1:4]
+    search_name = argv[4]
+    # default host is 'localhost' and default port is '3306'
+    connection = MySQLdb.connect(
+        user=username,
+        password=password,
+        db=database
+    )
 
-    h, p = "localhost", 3306,
-    u, psw, db_name, name_arg = argv[1], argv[2], argv[3], argv[4]
+    cursor = connection.cursor()
+    cursor.execute(
+        'SELECT cities.id, cities.name , states.name '
+        'FROM states INNER JOIN cities '
+        'ON states.id = cities.state_id WHERE states.name = %s '
+        'ORDER BY cities.id', (search_name,))
+    states = cursor.fetchall()
 
-    with MySQLdb.connect(host=h, user=u, passwd=psw, db=db_name, port=p) as db:
-        with db.cursor() as cursor_obj:
-            sql = """SELECT cities.name from cities, states WHERE state_id IN
-            (SELECT states.id WHERE states.name = %s ORDER BY cities.id ASC)"""
-            cursor_obj.execute(sql, (name_arg,))
-            city_names = cursor_obj.fetchall()
-            print(', '.join([name[0] for name in city_names]))
-
-    """ NB:
-    fetchall() method fetches all the rows of the result set as a list of tuples.
-    In this script, the data at index 0 of each tuple (city names) is what i extracted and printed.
-    """
+    for i in range(len(states)):
+        print(states[i][1], end=", " if i + 1 < len(states) else "")
+    print("")
+    connection.close()
