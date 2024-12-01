@@ -1,49 +1,75 @@
 #!/usr/bin/python3
-""" module holding a Derived class of Rectangle """
+"""
+Square module
+"""
+
 from models.rectangle import Rectangle
 
 
 class Square(Rectangle):
-    """ Defines the derived class of Rectangle """
+    """
+    Square class
+    """
 
     def __init__(self, size, x=0, y=0, id=None):
-        """ initializes instance attributes with superclass __init__ logic"""
+        """
+        Constructor
+        """
         super().__init__(size, size, x, y, id)
-        self.size = size
+
+    def __str__(self):
+        """
+        Return string representation of the object
+        """
+        return "[Square] ({}) {}/{} - {}".format(
+            self.id, self.x, self.y, self.width
+        )
 
     @property
     def size(self):
-        """ inherits the validation logic of superclass """
+        """
+        Return size of the square
+        """
         return self.width
 
     @size.setter
-    def size(self, data):
-        """ validates value with the superclass logic """
-        self.width = data
-        self.height = data
-
-    def __str__(self):
-        """ returning the class attributes in the below format """
-        return "[Square] ({}) {}/{} - {}"\
-            .format(self.id, self.x, self.y, self.width)
+    def size(self, value):
+        """
+        Set size of the square
+        """
+        self.width = value
+        self.height = value
 
     def update(self, *args, **kwargs):
-        """ Assigns instance attributes """
-
-        len_arg = len(args)
-        if args:
-            self.id = args[0] if len_arg >= 1 else self.id
-            self.size = args[1] if len_arg >= 2 else self.size
-            self.x = args[2] if len_arg >= 3 else self.x
-            self.y = args[3] if len_arg >= 4 else self.y
+        """
+        args: id, size, x, y
+        """
+        if args and len(args) > 0:
+            if len(args) == 1:
+                self.__init__(self.size, self.x, self.y, args[0])
+            elif len(args) == 2:
+                self.__init__(args[1], self.x, self.y, args[0])
+            elif len(args) == 3:
+                self.__init__(args[1], args[2], self.y, args[0])
+            elif len(args) == 4:
+                self.__init__(args[1], args[2], args[3], args[0])
         else:
-            for attr, val in kwargs.items():
-                setattr(self, attr, val)
+            if 'id' in kwargs:
+                self.__init__(self.size, self.x, self.y, kwargs['id'])
+            if 'size' in kwargs:
+                self.size = kwargs['size']
+            if 'x' in kwargs:
+                self.x = kwargs['x']
+            if 'y' in kwargs:
+                self.y = kwargs['y']
 
     def to_dictionary(self):
-        """returns the dictionary representation of a Square"""
-
-        to_dict = {}
-        for attr in ['id', 'size', 'x', 'y']:
-            to_dict[attr] = getattr(self, attr)
-        return to_dict
+        """
+        Return dictionary
+        """
+        return {
+            "id": self.id,
+            "size": self.width,
+            "x": self.x,
+            "y": self.y
+        }
