@@ -9,7 +9,6 @@ if __name__ == "__main__":
 
     h, p = "localhost", 3306,
     u, psw, db_name = argv[1], argv[2], argv[3]
-
     with MySQLdb.connect(host=h, user=u, passwd=psw, db=db_name, port=p) as db:
         with db.cursor() as cursor_obj:
             query = """SELECT cities.id, cities.name, states.name FROM cities,
